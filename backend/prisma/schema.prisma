@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TrafficLevel {
+  UNKNOWN
+  LIGHT
+  MODERATE
+  HEAVY
+  SEVERE
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(320)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  recommendations Recommendation[]
+  favoriteParkings FavoriteParking[]
+
+  @@index([createdAt(sort: Desc)])
+  @@map("users")
+}
+
+model Parking {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  /// CSV column Y (WGS-84)
+  latitude    Decimal  @db.Decimal(10, 8)
+  /// CSV column X (WGS-84)
+  longitude   Decimal  @db.Decimal(11, 8)
+  /// CSV column Z
+  altitude    Int      @default(0)
+  /// CSV column "24" — payment terminal hints
+  pay24       String?  @map("pay_24") @db.Text
+  /// CSV column EasyPay
+  easyPay     String?  @map("easy_pay") @db.Text
+  /// Not in CSV; assumed stall count for display
+  capacity    Int      @default(20)
+  zone        String   @default("leopark_lviv") @db.VarChar(128)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  trafficLogs     TrafficLog[]
+  recommendations Recommendation[]
+  favoritedBy     FavoriteParking[]
+
+  @@index([zone, id])
+  @@index([longitude, latitude])
+  @@map("parkings")
+}
+
+model TrafficLog {
+  id           String       @id @default(uuid()) @db.Uuid
+  parkingId    String       @map("parking_id") @db.Uuid
+  trafficLevel TrafficLevel @default(UNKNOWN) @map("traffic_level")
+  timestamp    DateTime     @default(now()) @db.Timestamptz(6)
+
+  parking Parking @relation(fields: [parkingId], references: [id], onDelete: Cascade)
+
+  @@index([parkingId, timestamp(sort: Desc)])
+  @@index([timestamp(sort: Desc)])
+  @@map("traffic_logs")
+}
+
+model Recommendation {
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @map("user_id") @db.Uuid
+  parkingId           String   @map("parking_id") @db.Uuid
+  recommendationScore Decimal  @map("recommendation_score") @db.Decimal(10, 4)
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parking Parking @relation(fields: [parkingId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([parkingId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("recommendations")
+}
+
+model FavoriteParking {
+  userId    String   @map("user_id") @db.Uuid
+  parkingId String   @map("parking_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parking Parking @relation(fields: [parkingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, parkingId])
+  @@index([userId])
+  @@map("favorite_parkings")
+}

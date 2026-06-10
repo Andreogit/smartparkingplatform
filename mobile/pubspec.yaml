@@ -1,0 +1,39 @@
+name: bkr_mobile
+description: BKR parking assistant — simplified Flutter client (bachelor project scope).
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  dio: ^5.7.0
+  flutter_secure_storage: ^9.2.2
+  google_maps_flutter: ^2.10.0
+  geolocator: ^13.0.2
+  flutter_dotenv: ^5.2.1
+  shared_preferences: ^2.3.3
+  intl: any
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/app_icon.png
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/env/

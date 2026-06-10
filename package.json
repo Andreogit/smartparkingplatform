@@ -1,0 +1,13 @@
+{
+  "name": "bkr",
+  "private": true,
+  "description": "Smart Parking Platform — monorepo scripts",
+  "scripts": {
+    "start": "bash scripts/start-stack.sh",
+    "dev": "bash scripts/start-stack.sh dev",
+    "start:prod": "bash scripts/start-stack.sh prod",
+    "db": "bash scripts/start-stack.sh db",
+    "stop": "bash scripts/start-stack.sh down",
+    "import-parkings": "cd backend && npm run prisma:import-parkings"
+  }
+}

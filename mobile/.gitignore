@@ -1,0 +1,9 @@
+.dart_tool/
+.packages
+build/
+**/GeneratedPluginRegistrant.*
+*.iml
+.idea/
+.vscode/
+*.env
+*.env.*
